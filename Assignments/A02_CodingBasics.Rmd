@@ -1,6 +1,6 @@
 ---
 title: "Assignment 2: Coding Basics"
-author: "Student Name"
+author: "Addie Navarro"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -31,11 +31,16 @@ This exercise accompanies the lessons in Environmental Data Analytics on coding 
 4. Insert comments in your code to describe what you are doing.
 
 ```{r}
-#1. 
+#1. Finding sequence (Sequence1) from 1 to 100 that increases by 4 
+sequence1<-seq(1,100,4)
+sequence1
 
-#2. 
+#2. Mean and Median of Sequence1, both were found to be 49
+median(sequence1)
+mean(sequence1)
 
-#3. 
+#3. Mean of Sequence1 greater than median of Sequence1? Mean is not greater than median, conditional statement is false. 
+mean(sequence1)>median(sequence1)
 
 ```
 
@@ -50,21 +55,41 @@ This exercise accompanies the lessons in Environmental Data Analytics on coding 
 8. Label the columns of your data frame with informative titles.
 
 ```{r}
+#5 Character vector of names of students
+names<-c("Sansa", "Arya","Jon", "Bran")  
+names
+#Integer vector of students' test scores
+testscores<-c(95, 82, 49, 91)
+testscores
+#Logical vector of whether the students passed or not
+passinggrade<- testscores>50
+passinggrade
 
+#7 Combining vectors into a data frame
+student_grades.df<-data.frame(names, testscores, passinggrade)
+student_grades.df
+
+#8 Renaming columns of data frams
+colnames(student_grades.df)<-c('Student Name', 'Test Score', 'Passed Class')
+student_grades.df
+                          
 ```
 
 9. QUESTION: How is this data frame different from a matrix?
 
-> Answer: 
+> Answer: Data frames contain different classes of data, whereas a matrix contains only one class of data. 
 
 10. Create a function with an if/else statement. Your function should determine whether a test score is a passing grade of 50 or above (TRUE or FALSE). You will need to choose either the `if` and `else` statements or the `ifelse` statement. Hint: Use `print`, not `return`. The name of your function should be informative.
 
 11. Apply your function to the vector with test scores that you created in number 5. 
 
 ```{r}
+#10 if/else statement function
+pass_fail<-function(x){ifelse(x>50, "pass", "fail")}
+pass_fail(testscores)
 
 ```
 
 12. QUESTION: Which option of `if` and `else` vs. `ifelse` worked? Why?
 
-> Answer: 
+> Answer: 'ifelse' worked for me better than 'if' and 'else' because it allowed me to use the logical vector of "pass" or "fail" and was more convenient and faster than using 'if' and 'else'. 
