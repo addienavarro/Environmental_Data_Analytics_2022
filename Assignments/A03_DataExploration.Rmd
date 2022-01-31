@@ -26,8 +26,7 @@ The completed exercise is due on January 25, 2022.
 getwd()
 install.packages("tidyverse")
 library(tidyverse)
-Neonics<-read.csv("../Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv"
-                  , stringsAsFactors=TRUE)
+Neonics<-read.csv("../Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv", stringsAsFactors=TRUE)
 Litter<-read.csv("../Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors = TRUE)
 
 ```
@@ -54,31 +53,31 @@ Litter<-read.csv("../Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", string
 5. What are the dimensions of the dataset?
 
 ```{r}
-
+dim(Neonics)
 ```
 
 6. Using the `summary` function on the "Effect" column, determine the most common effects that are studied. Why might these effects specifically be of interest?
 ```{r}
-
+summary(Neonics$Effect)
 ```
 
-> Answer: 
+> Answer: These effects may be of interest to see how the chemical insecticide affects different species of insects. They're able to see how the insecticide affects the abundance or the mortality of the population, or if it affects the behavior or reproduction of the species, among other effects. Mostly it looks like the study affected mortality and population. 
 
 7. Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
 
 ```{r}
-
+summary(Neonics$Species.Common.Name, 7)
 ```
 
-> Answer: 
+> Answer: These are all beneficial garden insects and are of more interest than other insects because of their role in pollination and keeping other populations of harmful insects at bay. The study is seeking to find out of the insecticide is harming beneficial insects. 
 
 8. Concentrations are always a numeric value. What is the class of Conc.1..Author. in the dataset, and why is it not numeric?
 
 ```{r}
-
+class(Neonics$Conc.1.Units..Author.)
 ```
 
-> Answer:
+> Answer: The class of Conc.1..Author is a factor in the dataset and it's not numeric because 
 
 
 
