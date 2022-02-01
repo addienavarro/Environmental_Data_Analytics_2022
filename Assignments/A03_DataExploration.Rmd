@@ -24,10 +24,10 @@ The completed exercise is due on January 25, 2022.
 1. Check your working directory, load necessary packages (tidyverse), and upload two datasets: the ECOTOX neonicotinoid dataset (ECOTOX_Neonicotinoids_Insects_raw.csv) and the Niwot Ridge NEON dataset for litter and woody debris (NEON_NIWO_Litter_massdata_2018-08_raw.csv). Name these datasets "Neonics" and "Litter", respectively. **Be sure to add the `stringsAsFactors = TRUE` parameter to the function when reading in the CSV files.**
 ```{r,  message = FALSE}
 getwd()
-install.packages("tidyverse")
+#install.packages("tidyverse")
 library(tidyverse)
 Neonics<-read.csv("../Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv", stringsAsFactors=TRUE)
-Litter<-read.csv("../Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors = TRUE)
+Litter<-read.csv("../Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors=TRUE)
 
 ```
 
@@ -77,7 +77,7 @@ summary(Neonics$Species.Common.Name, 7)
 class(Neonics$Conc.1.Units..Author.)
 ```
 
-> Answer: The class of Conc.1..Author is a factor in the dataset and it's not numeric because 
+> Answer: The class of Conc.1..Author is a factor in the dataset and it's not numeric because it's categorical and therefore there are discrete values versus numeric values can be infinite. 
 
 
 
@@ -85,56 +85,72 @@ class(Neonics$Conc.1.Units..Author.)
 
 9. Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year. 
 ```{r}
-
+library(ggplot2)
+library(dplyr)
+ggplot(Neonics) +
+    geom_freqpoly(aes(x = Publication.Year), bins = 50)
 ```
 
 10. Reproduce the same graph but now add a color aesthetic so that different Test.Location are displayed as different colors.
 ```{r}
-
+ggplot(Neonics) +
+    geom_freqpoly(aes(x = Publication.Year, color = Test.Location), bins = 50)
 ```
 
 Interpret this graph. What are the most common test locations, and do they differ over time?
 
-> Answer: 
+> Answer: The lab looks like the most common test location since the early 2000s, with natural field locations as a close second. Natural field testing locations looked more prominent in the 90s. 
 
 11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information. 
 
 ```{r}
-
+summary(Neonics$Endpoint)
+ggplot(Neonics, aes(x = Endpoint)) +
+  geom_bar()
 ```
 
-> Answer: 
+> Answer: The two most common Endpoints are NOEL and LOEL. NOEL is defined as No Observable Effect Level and LOEL is defined as Lowest Observable Effect Level.
 >
 
 ## Explore your data (Litter)
 
 12. Determine the class of collectDate. Is it a date? If not, change to a date and confirm the new class of the variable. Using the `unique` function, determine which dates litter was sampled in August 2018. 
 ```{r}
-
+library(lubridate)
+Litter<-read.csv("../Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors=TRUE)
+class(Litter$collectDate) #it is not a date, it is a factor
+Litter$collectDate<-as.Date(Litter$collectDate, format = "%Y-%m-%d")
+class(Litter$collectDate)#now it's a date!
+unique(Litter$collectDate, incomparables = FALSE)#collected on August 2, 2018 or August 30, 2018
 ```
 
 13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
 
 ```{r}
-
+unique(Litter$plotID, incomparables = FALSE)
 ```
 
-> Answer: 
+> Answer: There are 12 plots sampled at Niwot Ridge. This is different from summary because in summary, each of the plots are listed with the frequency number of samples at each plot versus in unique, it's just showing the number of unique plots that were sampled at Niwot Ridge. 
 
 14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
 ```{r}
-
+ggplot(Litter, aes(x = functionalGroup)) +
+  geom_bar()
 ```
 
 15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin plot of dryMass by functionalGroup. 
 ```{r}
+ggplot(Litter) +
+  geom_boxplot(aes(x = functionalGroup, y = dryMass))
 
+ggplot(Litter) +
+  geom_violin(aes(x = functionalGroup, y = dryMass))
 ```
 
 Why is the boxplot a more effective visualization option than the violin plot in this case?
 
-> Answer: 
+> Answer: The violin plot doesn't have enough data points of dry mass in each of the categories to show the peaks and valleys of the data. The boxplot shows more dimensions of the data in this case as we're interested in dry mass and can easily see the IQR of the different categories. 
 
 What type(s) of litter tend to have the highest biomass at these sites? 
 
-> Answer: 
+> Answer: Looking at the boxplot, it appears that needles have the highest biomass at these sites. 
