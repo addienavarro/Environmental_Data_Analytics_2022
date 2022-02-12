@@ -33,15 +33,31 @@ the processed data file for the Niwot Ridge litter dataset (use the [`NEON_NIWO_
 
 ```{r}
 #1 
+getwd()
+library(tidyverse)
+library(cowplot)
+
+NTL_LTER<-read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+
+Niwot_Ridge<-read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
 
 #2 
+NTL_LTER$sampledate<-as.Date(NTL_LTER$sampledate, format = "%Y-%m-%d")
 
+Niwot_Ridge$collectDate<-as.Date(Niwot_Ridge$collectDate, format = "%Y-%m-%d")
+
+class(Niwot_Ridge$collectDate) 
+class(NTL_LTER$sampledate)#now they're dates!
 ```
 ## Define your theme
 3. Build a theme and set it as your default theme.
 
 ```{r}
 #3
+mytheme <- theme_classic(base_size = 14)+
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
 
 ```
 
@@ -52,6 +68,14 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 
 ```{r}
 #4
+tp_ug_vs_po4<-
+  ggplot(NTL_LTER, aes(x = tp_ug, y = po4))+
+  geom_point()+
+  facet_wrap(vars(lakename))+
+  xlim(0,140)+
+  ylim(0,50)+
+  geom_smooth(method = lm, color = "black")
+print(tp_ug_vs_po4)
 
 ```
 
@@ -60,6 +84,25 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 
 ```{r}
 #5
+NTL_LTER$month<-as.factor(NTL_LTER$month) #forcing "month" to be a factor instead of a numeric variable so I can see multiple box plots
+
+temp_boxplot<-
+  ggplot(NTL_LTER, aes(x = month, y = temperature_C))+
+  geom_boxplot(aes(color = lakename))
+print(temp_boxplot)
+
+tp_boxplot<-
+  ggplot(NTL_LTER, aes(x = month, y = tp_ug))+
+  geom_boxplot(aes(color = lakename))
+print(tp_boxplot)
+
+tn_boxplot<-
+  ggplot(NTL_LTER, aes(x = month, y = tn_ug))+
+  geom_boxplot(aes(color = lakename))
+print(tn_boxplot)
+
+#cowplot:
+plot_grid(temp_boxplot,tp_boxplot, tn_boxplot, nrow = 1)
 
 ```
 
