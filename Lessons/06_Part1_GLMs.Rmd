@@ -20,7 +20,7 @@ The analysis of variance (ANOVA), and linear regression are special cases of the
 
 ### Choosing a model from your data: A "cheat sheet"
 
-**One-way ANOVA (Analysis of Variance):** Continuous response, one categorical explanatory variable with more than two categories.
+**One-way ANOVA (Analysis of Variance):** Continuous response, one categorical explanatory variable with more than two categories.Assume populations are normally distributed. 
 
 **Two-way ANOVA (Analysis of Variance)** Continuous response, two categorical explanatory variables.
 
@@ -170,7 +170,7 @@ par(mfrow = c(1,1))
 We can also make exploratory plots of several continuous data points to determine possible relationships, as well as covariance among explanatory variables. 
 
 ```{r, fig.height = 3, fig.width = 4}
-#install.packages("corrplot")
+install.packages("corrplot")
 library(corrplot)
 PeterPaulnutrients <- 
   PeterPaul.chem.nutrients %>%
