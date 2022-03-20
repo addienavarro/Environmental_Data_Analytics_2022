@@ -32,9 +32,13 @@ getwd()
 
 #Import libraries
 library(tidyverse)
+#install.packages("sf")
 library(sf)
+#install.packages("leaflet")
 library(leaflet)
+#install.packages("mapview")
 library(mapview)
+#installed.packages("RColorBrewer")
 library(RColorBrewer)
 ```
 
@@ -81,10 +85,11 @@ mapView(counties_sf, zcol = "AWATER")
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
 
-
+huc8_sf <- st_read('./Data/Spatial/NCHUC8.shp')
 
 #View the data as a map, colored by the acreage in each
 
+mapview(huc8_sf, zcol = "ACRES")
 
 ```
 
@@ -95,10 +100,17 @@ mapView(counties_sf, zcol = "AWATER")
 ```{r Select the Upper Neuse HUC 8}
 #Read the shapefile into an sf dataframe
 
-
+Neuse_Huc_8 <- st_read('./Data/Spatial/NCHUC8.shp')%>%
+  filter(SUBBASIN == "Upper Neuse")
 
 #Create a map
+mapview(huc8_sf, zcol = "ACRES")+
+  mapview(Neuse_Huc_8)
 
+#create map with ggplot
+ggplot()+
+  geom_sf(data = huc8_sf, fill = "orange")+
+  geom_sf(data = Neuse_Huc_8, fill = "purple")
 
 ```
 
@@ -113,14 +125,17 @@ The URL '<https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Ene
 * Be sure you read in the `HUC_12` column as a factor so it doesn't default to a numeric column.
 
 ```{r}
-#Compute HUC8 wind energy
 
-
-
-
+#Read in online database
+EnviroAtlas <- read.csv("https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv", 
+                        colClasses = c("HUC_12" = "factor"))%>%
+  mutate(Huc8 = substr(HUC_12, 1, 8))%>%
+  group_by(Huc8)%>%
+  summarize(SumWindEnergy = sum(AvgWindEnergy))#Compute HUC8 wind energy
+  
 #Join to HUC_8 features
-
-
+Huc8_Sf_Joined <- 
+  left_join(EnviroAtlas, huc8_sf, by = c("Huc8" = "HUC_8"))
 
 
 #View the outputs
