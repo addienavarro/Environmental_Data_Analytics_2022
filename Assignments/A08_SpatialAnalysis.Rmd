@@ -1,11 +1,13 @@
 ---
-title: "Assignment 9: Spatial Analysis in R"
-author: "Student Name"
-output: pdf_document
+title: 'Assignment 9: Spatial Analysis in R'
+author: "Addie Navarro"
+output:
+  html_document:
+    df_print: paged
 geometry: margin=2.54cm
-editor_options: 
+editor_options:
   chunk_output_type: console
-  markdown: 
+  markdown:
     wrap: 72
 ---
 
@@ -30,10 +32,13 @@ This exercise accompanies the lessons in Environmental Data Analytics (ENV872L) 
 
 ```{r Prepare workspace}
 #1.
-
+getwd()
 
 #2. 
-
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(mapview)
 
 ```
 
@@ -48,18 +53,20 @@ In this exercise, we will be exploring stream gage height data in Nebraska corre
 ```{r Read the county data into an sf dataframe}
 #3. Read in Counties shapefile into an sf dataframe, filtering for just NE counties
 
+Stream_gage_counties_sf <- st_read("./Data/Spatial/cb_2018_us_county_20m.shp")%>%
+  filter(STATEFP == 31)
 
 #4. Reveal the CRS of the counties features
-
+st_crs(Stream_gage_counties_sf)$epsg
 
 #5. Plot the data
-
+mapview(Stream_gage_counties_sf)
 ```
 
 6. What is the EPSG code of the Counties dataset? Is this a geographic or a projected coordinate reference system? (Or, does this CRS use angular or planar coordinate units?) To what datum is this CRS associated? (Tip: look the EPSG code on <https://spatialreference.org>) 
 
 > ANSWER: 
-> 
+> The EPSG code is 4269. This is a geographic coordinate reference system using angular coordinate units (degrees). It's associated with "North_American_Datum_1983" or NAD83. 
 
 
 ### Read in gage locations csv as a dataframe, then display the column names it contains
@@ -72,16 +79,16 @@ Next we'll read in some USGS/NWIS gage location data added to the `Data/Raw` fol
 
 ```{r Read in USGS Gage Locations}
 #7. Read in gage locations csv as a dataframe
-
+USGS_location <- read.csv("./Data/Raw/NWIS_SiteInfo_NE_RAW.csv")
 
 #8. Reveal the names of the columns
-
+colnames(USGS_location)
 
 ```
 
 9. What columns in the dataset contain the x and y coordinate values, respectively?  
 > ANSWER:
-> 
+> Dec_long_va conains the x coordinate and dec_lat_va contains the y coordinate. 
 
 
 ### Convert the dataframe to a spatial features ("sf") dataframe
@@ -93,16 +100,18 @@ Next we'll read in some USGS/NWIS gage location data added to the `Data/Raw` fol
 
 ```{r Convert dataframe to sf dataframe}
 #10. Convert to an sf object
-
+USGS_location_sf <- 
+  USGS_location %>%
+  st_as_sf(coords = c('dec_long_va', 'dec_lat_va'), crs=4269)
 
 #11. Re-examine the column names
-
+colnames(USGS_location_sf)
 
 ```
 
 12. What new field(s) appear in the sf dataframe created? What field(s), if any, disappeared?
 
->ANSWER: 
+>ANSWER: "dec_long_va" and "dec_lat_va" disappeared and the column "geometry" was created.
 >
 
 
@@ -115,7 +124,11 @@ Next we'll read in some USGS/NWIS gage location data added to the `Data/Raw` fol
 
 ```{r Plot the spatial features}
 #13. Plot the gage locations atop the county features
-
+ggplot()+
+  geom_sf(data = Stream_gage_counties_sf, fill = "yellow")+
+  geom_sf(data = USGS_location_sf, color = "red")+
+  labs(title = "NWIS Gage Locations in Nebraska", 
+       subtitle = "Addie Navarro")
 
 ```
 
@@ -134,19 +147,23 @@ Lastly, we want to attach some gage height data to our site locations. I've cons
 
 ```{r}
 #14. Read the site flow data into a data frame
-
+Site_Flow.df <- 
+  read.csv("./Data/Raw/NWIS_SiteFlowData_NE_RAW.csv")
 
 #15. Show the column names
-
+colnames(Site_Flow.df)
 
 #16. Join location data to it
-
+USGS_Site_Flow_Joined <- 
+  USGS_location_sf %>%
+  left_join(Site_Flow.df, by = c("site_no", "station_nm"))%>%
+  na.omit()
 
 #17. Show the column names of the joined dataset
-
+colnames(USGS_Site_Flow_Joined)
 
 #18. Show the dimensions of this joined dataset
-
+dim(USGS_Site_Flow_Joined)
 
 ```
 
@@ -159,9 +176,10 @@ Now we can examine where the flooding appears most acute by visualizing gage hei
 ```{r}
 #Map the points, sized by gage height
 
-
-#ggplot
-
+mapview(Stream_gage_counties_sf,
+        zcol = "AWATER")+
+  mapview(USGS_Site_Flow_Joined,
+          cex = "gage_ht")
 
 ```
 
@@ -179,10 +197,16 @@ Up next we will do some spatial analysis with our data. To prepare for this, we 
 
 ```{r}
 #20 Transform the counties and gage location datasets to UTM Zone 14
-
+Counties_sf_utm <- 
+  st_transform(Stream_gage_counties_sf, crs = 32614)
+Gage_location_utm <- 
+  st_transform(USGS_Site_Flow_Joined, crs = 32614)
 
 #21 Plot the data
-
+mapview(Counties_sf_utm,
+        col.regions = "blue")+
+  mapview(Gage_location_utm,
+          col.regions = "yellow")
 
 ```
 
@@ -200,13 +224,22 @@ Now let's zoom into a particular county and examine the gages located there.
 
 ```{r}
 #22 Select the county
-
+Lancaster_sf <- 
+  Counties_sf_utm %>%
+  filter(NAME %in% c('Lancaster'))
 
 #23 Select gages within the selected county
-
+lancaster_gages <-
+  Gage_location_utm %>%
+  filter(st_intersects(x = ., y = Lancaster_sf, sparse = F))
 
 #24 Plot
 
-
+mapview(Counties_sf_utm, 
+        col.regions = 'grey')+
+  mapview(Lancaster_sf, 
+          col.regions = 'green')+
+  mapview(lancaster_gages,
+          col.regions = "blue")
 
 ```
