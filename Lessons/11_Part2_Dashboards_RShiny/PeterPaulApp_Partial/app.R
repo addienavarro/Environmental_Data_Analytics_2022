@@ -1,5 +1,6 @@
 #### Load packages ----
 library(shiny)
+#install.packages('shinythemes')
 library(shinythemes)
 library(tidyverse)
 
@@ -9,23 +10,26 @@ library(tidyverse)
 # Remove negative values for depth_id 
 # Include only lakename and sampledate through po4 columns
 nutrient_data <- 
-nutrient_data$sampledate <- as.Date()
-nutrient_data <-  %>%
-   %>%
+  read.csv("./Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
+nutrient_data$sampledate <- as.Date(nutrient_data$sampledate, format = "%Y-%m-%d")
+nutrient_data <-  
+  nutrient_data %>%
+  filter(depth_id > 0) %>%
+  select(lakename, sampledate:po4)
   
 
 #### Define UI ----
 ui <- fluidPage(theme = shinytheme("yeti"),
   # Choose a title
-  titlePanel(),
+  titlePanel("Nutrients in Peter and Paul Lakes"),
   sidebarLayout(
     sidebarPanel(
       
       # Select nutrient to plot
-      selectInput(inputId = ,
-                  label = ,
-                  choices = , 
-                  selected = ),
+      selectInput(inputId = "y",
+                  label = "Nutrient",
+                  choices = c("tn_ug", "tp_ug", "nh34", "no23", "po4"), 
+                  selected = "tp_ug"),
       
       # Select depth
       checkboxGroupInput(inputId = ,
